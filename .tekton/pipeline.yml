@@ -3,6 +3,18 @@ kind: Pipeline
 metadata:
   name: cd-pipeline
 spec:
+  # --- ADD THIS SECTION ---
+  params:
+    - name: repo-url
+      type: string
+      description: The URL of the GitHub repository
+    - name: app-name
+      type: string
+      description: The name of the application to deploy
+    - name: build-image
+      type: string
+      description: The full image registry path
+  # -------------------------
   workspaces:
     - name: output
   tasks:
@@ -23,6 +35,12 @@ spec:
       params:
         - name: url
           value: $(params.repo-url)
+        - name: revision
+          value: main
+        - name: subdirectory
+          value: ""  
+        - name: deleteExisting
+          value: "true"
 
     - name: flake8
       taskRef:
@@ -47,6 +65,9 @@ spec:
       workspaces:
         - name: source
           workspace: output
+      params:
+        - name: IMAGE
+          value: $(params.build-image)
 
     - name: deploy
       taskRef:
